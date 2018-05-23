@@ -1,0 +1,67 @@
+#include "services_microboone_basic.fcl"
+#include "services_microboone.fcl"
+
+process_name: celltree
+
+services:
+{
+  TFileService: { fileName: "test.root" }
+  # Timing:       {}
+  RandomNumberGenerator: {}
+  message:      @local::standard_info
+  @table::microboone_services
+  @table::microboone_basic_services
+
+}
+
+
+source:
+{
+  module_type: RootInput
+  fileNames:  [ "gen.root" ]
+  firstEvent : 1
+  maxEvents:  -1
+}
+
+
+outputs:{}
+
+
+physics:
+{
+  analyzers:
+  {
+    WireCell:
+    {
+      module_type       : "CellTree"
+      saveRaw           : true
+      saveCalib         : false
+      saveSimChannel    : false
+      saveMC            : false
+      saveJSON          : false
+      RawDigitLabel     : "daq"
+      TriggerLabel      : "daq"
+      OpFlashLabel      : "simpleFlashCosmic"
+      OpHitLabel        : "simpleFlashCosmic"
+#      OpHitLabel        : "opflashCosmic"
+#      OpFlashLabel      : "opflashCosmic"
+      saveOpHit         : true
+      saveOpFlash       : true
+      saveTrigger       : true
+      opMultPEThresh    : "0"
+      CalibLabel        : "caldata"
+      SpacePointLabels  : ["trackkalmanhit","wirecell"]
+      mcOption          : "all"
+      saveMCTrackPoints : false
+      outFile           : "celltree.root"
+    }
+  }
+  analysis: [ WireCell ]
+  end_paths: [ analysis ]
+}
+
+### Use this to set the frame size for truncated readout
+services.DetectorPropertiesService.NumberTimeSamples:            6400
+services.DetectorPropertiesService.ReadOutWindowSize:            6400
+services.DetectorClocksService.InheritClockConfig:                  false
+services.DetectorClocksService.TriggerOffsetTPC:                    -0.400e3
